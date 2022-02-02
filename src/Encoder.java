@@ -1,10 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Encoder {
 
@@ -19,7 +16,7 @@ public class Encoder {
     private static void startup() {
         boolean isCorrectInput = false;
         while (!isCorrectInput) {
-            System.out.println("Пожалуйста, выберите свой вариант: [1. шифрование] [2. расшифровка] [3. Брут-форс] [4. Стат-анализ] [5. Выход]");
+            System.out.println("Пожалуйста, выберите свой вариант: [1. шифрование] [2. расшифровка] [3. Брут-форс] [4. Стат-анализ (НЕРАБОТАЕТ)] [5. Выход]");
             String scannerSelect = SCANNER.nextLine();
 
             if (scannerSelect.equalsIgnoreCase("1")) {
@@ -37,7 +34,7 @@ public class Encoder {
                 statAnalysis();
                 break;
             } else if (scannerSelect.equalsIgnoreCase("5")) {
-                System.out.println("Ну раз так, то всего Вам хорошего - Адьос!");
+                System.out.println("Ок, досвидание.");
                 isCorrectInput = true;
             } else {
                 System.out.println("Вы ввели не правильный символ, будьте внимательны и повторите еще раз");
@@ -73,7 +70,6 @@ public class Encoder {
             return null;
         }
     }
-
 
     //Write to file
     private static void writeContentToFile(String content, String filePathPrevious, String suffix){
@@ -143,8 +139,10 @@ public class Encoder {
         String filePath = SCANNER.nextLine();
         String fileContent = getFileContent(filePath);
         for (int i = 0; i < ALPHABET.length(); i++) {
+            assert fileContent != null;
             String decryptedText = decryptText(fileContent, i);
             boolean isValid = isValidText(decryptedText);
+
             if (isValid) {
                 System.out.println("Ключ равен " + i);
                 writeContentToFile(decryptedText, filePath, "-brutted");
@@ -153,36 +151,43 @@ public class Encoder {
         }
     }
 
-    private static boolean isValidText(String text){
+    private static boolean isValidText(String text) {
         // Тест - на длину слов
+        boolean inter = false;
         String[] strings = text.split(" ");
         for (String string : strings) {
-            if (string.length() > 24) {
+            if (string.length() > 35) {
                 return false;
             }
         }
-        System.out.println("Понятен ли Вам это текст ?");
+        // Тест - на знаки
+        if (text.contains(". ") || text.contains(", ") || text.contains("! ") || text.contains("? ")) {
+            inter = true;
+        }
 
-        int stringStart = new Random().nextInt(text.length()/2);
-        int stringEnd = stringStart + 100; // сделать проверку что бы не выйти за рамки текста - StringIndexOutOfBoundsException
+        System.out.println("Понятен ли Вам это текст ?");
+        int stringStart = new Random().nextInt(text.length() / 2);
+        int stringEnd = stringStart + 150; // сделать проверку что бы не выйти за рамки текста - StringIndexOutOfBoundsException
         System.out.println(text.substring(stringStart, stringEnd));
         System.out.println("1. Все ОК");
         System.out.println("2. Нет текст не читаем");
+
         int i = SCANNER.nextInt();
-        if (i==1){
+        if (i == 1) {
             return true;
-        } else if (i==2) {
+        } else if (i == 2) {
             return false;
         } else {
-            System.out.println("Вы вкли не верное значение"); //Сделать доп. проверку
-        } // Сделать в цекле
+            System.out.println("Вы вели не верное значение"); //Сделать доп. проверку
+        } // Сделать в цекле*/
 
         return true;
     }
 
 
+    //Statistical analysis - здесь я ничего не понимаю ((
     private static void statAnalysis() {
-        System.out.print("НАЧИНАЕМ РАСШИФРОВЫВАТЬ ЧЕРЕЗ СТАТИСТИЧЕСКИЙ АНАЛИЗ \nВведите полный путь к файлу: ");
+        System.out.print("НАЧИНАЕМ РАСШИФРОВЫВАТЬ ЧЕРЕЗ СТАТИСТИЧЕСКИЙ АНАЛИЗ \nВведите полный путь к зашифрованному файлу: ");
         String filePath = SCANNER.nextLine();
         String decryptedText = getFileContent(filePath);
 
@@ -199,6 +204,7 @@ public class Encoder {
         }
         System.out.println(result.toString()); // Здесь нужно вернуть
     }
+
 
     private static HashMap<Character, Character> getCharacterStatistics(HashMap<Character, Integer> decryptedTextStatistics,  HashMap<Character, Integer> generalStatistics){
         HashMap<Character, Character> result = new HashMap<>();
@@ -239,11 +245,15 @@ public class Encoder {
         }
         for (Character character : resultAbsolute.keySet()) {
             Integer integer = resultAbsolute.get(character);
-            int i = integer * 10_000 / text.length();
+            int i = integer * 5_000 / text.length();
             result.put(character, i);
         }
         return result;
     }
+
+
+
+
 
 
 
